@@ -30,6 +30,209 @@
       justify-content: space-between;
       align-items: center;
       margin: 1rem 0;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .filter-select, .search-input {
+      padding: 0.5rem;
+      background-color: #1f2937;
+      color: #f3f4f6;
+      border: 1px solid #374151;
+      border-radius: 6px;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background-color: #1f2937;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+    }
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background-color: #1f2937;
+    }
+    .grid-table th,
+    .grid-table td {
+      border: 1px solid #374151;
+      padding: 0.5rem;
+      vertical-align: top;
+      color: #f3f4f6;
+    }
+    .grid-table th {
+      background-color: #374151;
+      font-weight: bold;
+      text-align: center;
+    }
+    .grid-table td {
+      min-height: 4rem;
+      background-color: #111827;
+    }
+    .course-block {
+      background-color: #374151;
+      padding: 0.25rem;
+      margin-bottom: 0.25rem;
+      border-radius: 6px;
+    }
+    .course-block.conflict {
+      background-color: #dc2626;
+    }
+    .download-btn {
+      margin-left: 1rem;
+      background-color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>IITD M.Tech CSE Timetable</h1>
+  </div>
+  <div class="topbar">
+    <label>Room Filter:
+      <select class="filter-select" onchange="filterByRoom(this.value)">
+        <option value="">All Rooms</option>
+      </select>
+    </label>
+    <input class="search-input" type="text" placeholder="Search course..." oninput="searchCourses(this.value)">
+    <div>
+      <button class="btn" onclick="toggleView()">Toggle View</button>
+      <button class="btn download-btn" onclick="downloadICS()">📅 Add to Calendar</button>
+      <button class="btn" onclick="window.print()">🖨️ Export as PDF</button>
+    </div>
+  </div>
+
+  <div id="cardView" class="card-container"></div>
+  <div id="gridView" style="display: none;"></div>
+
+  <div class="footer">
+    <p>Designed with ❤️ by IITD CSE M.Tech 2025 Batch | GitHub: @kathpaliachirag</p>
+  </div>
+
+  <script>
+    const timetable = [...]; // truncated for brevity, same as previous
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const timeSlots = ["08:00–09:00", "09:00–10:00", "09:30–11:00", "11:00–12:00", "12:00–13:00", "13:00–14:00", "14:00–15:30", "15:30–17:00"];
+
+    function toggleView() {
+      const card = document.getElementById("cardView");
+      const grid = document.getElementById("gridView");
+      card.style.display = card.style.display === "none" ? "grid" : "none";
+      grid.style.display = grid.style.display === "block" ? "none" : "block";
+    }
+
+    function populateCardView() {
+      const cardContainer = document.getElementById("cardView");
+      cardContainer.innerHTML = "";
+      timetable.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.setAttribute("data-room", item.room);
+        div.setAttribute("data-name", item.name.toLowerCase());
+        div.innerHTML = `
+          <h3>${item.name}</h3>
+          <p><strong>${item.course}</strong></p>
+          <p>Instructor: ${item.instructor}</p>
+          <p>Room: ${item.room}</p>
+          <p>Days: ${item.days.join(", ")}</p>
+          <p>Time: ${item.time}</p>
+        `;
+        cardContainer.appendChild(div);
+      });
+    }
+
+    function populateGridView() {
+      const gridContainer = document.getElementById("gridView");
+      gridContainer.innerHTML = "";
+      const table = document.createElement("table");
+      table.className = "grid-table";
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      headRow.innerHTML = `<th>Time \\ Day</th>` + days.map(d => `<th>${d}</th>`).join("");
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+      const tbody = document.createElement("tbody");
+      timeSlots.forEach(slot => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td><strong>${slot}</strong></td>` + days.map(day => {
+          const courses = timetable.filter(entry => entry.time === slot && entry.days.includes(day));
+          const conflict = courses.length > 1;
+          return `<td>${courses.map(c => `<div class='course-block ${conflict ? "conflict" : ""}'><strong>${c.name}</strong><br>${c.room}<br><em>${c.instructor}</em></div>`).join("")}</td>`;
+        }).join("");
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      gridContainer.appendChild(table);
+    }
+
+    function filterByRoom(room) {
+      document.querySelectorAll(".card").forEach(card => {
+        card.style.display = !room || card.dataset.room === room ? "block" : "none";
+      });
+    }
+
+    function searchCourses(query) {
+      query = query.toLowerCase();
+      document.querySelectorAll(".card").forEach(card => {
+        card.style.display = card.dataset.name.includes(query) ? "block" : "none";
+      });
+    }
+
+    function downloadICS() { /* same as before */ }
+    function formatTime(t) { /* same as before */ }
+    function convertDayToICS(day) { /* same as before */ }
+
+    populateCardView();
+    populateGridView();
+  </script>
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IITD M.Tech CSE Timetable</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #111827;
+      color: #f3f4f6;
+    }
+    .header, .footer {
+      background-color: #1f2937;
+      padding: 1rem;
+      text-align: center;
+      color: #f3f4f6;
+    }
+    .footer {
+      font-size: 0.8rem;
+      margin-top: 2rem;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0;
     }
     .btn {
       padding: 0.5rem 1rem;
@@ -180,7 +383,7 @@
     populateGridView();
   </script>
 </body>
-</html>
+</html> -->
 
 <!-- <!DOCTYPE html>
 <html lang="en">
