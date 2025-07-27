@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -186,4 +186,65 @@
     Made with ❤️ by CK | IIT Delhi M.Tech CSE
   </footer>
 </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IITD M.Tech CSE Timetable</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: '#1b396a',
+            accent: '#f59e0b',
+          },
+        },
+      },
+    }
+  </script>
+</head>
+
+<body class="bg-gray-100 font-sans text-gray-800">
+  <div class="flex justify-between items-center px-6 py-4 bg-primary text-white">
+    <h1 class="text-2xl font-semibold">🗓️ IIT Delhi - M.Tech CSE Timetable</h1>
+    <button id="themeToggle" class="text-sm bg-white text-primary px-4 py-1 rounded shadow hover:bg-gray-100">🌙 Toggle Theme</button>
+  </div>
+
+  <div class="p-6">
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="timetableCards">
+      <!-- Sample Card -->
+      <div class="bg-white rounded-2xl shadow-lg p-4 hover:shadow-xl transition duration-300 relative group">
+        <h2 class="text-xl font-semibold text-primary">COL7153 – Complexity Theory</h2>
+        <p class="mt-2">🕒 Mon & Wed, 11:00AM - 12:00PM</p>
+        <p>🏫 Room: SIT 308</p>
+        <div class="text-sm mt-2 text-gray-500 group-hover:text-gray-800">Instructor: Prof. XYZ</div>
+        <a href="#" class="absolute bottom-2 right-2 text-accent text-sm hover:underline">📅 Add to Calendar</a>
+      </div>
+      <!-- Add more cards similarly -->
+    </div>
+  </div>
+
+  <div class="p-6 border-t mt-10 text-center text-sm text-gray-500">
+    Crafted with ❤️ by CK | IIT Delhi M.Tech CSE
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById("themeToggle");
+    themeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("bg-gray-100");
+      document.body.classList.toggle("bg-gray-900");
+      document.body.classList.toggle("text-white");
+    });
+  </script>
+</body>
+
 </html>
