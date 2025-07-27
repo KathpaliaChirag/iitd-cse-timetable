@@ -1,226 +1,158 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-const timetable = [
-  { course: "COL7004", name: "Mathematical Foundations of Computing", room: "LH519", days: ["Mon", "Tue", "Thu", "Fri"], time: "13:00–14:00" },
-  { course: "COL703", name: "Logic for Computer Science", room: "VI LT 1", days: ["Mon", "Thu"], time: "09:30–11:00" },
-  { course: "COL7151", name: "Algorithmic Graph Theory", room: "LH316", days: ["Mon", "Thu"], time: "14:00–15:30" },
-  { course: "COL7153", name: "Complexity Theory", room: "LH611", days: ["Tue", "Fri"], time: "15:30–17:00" },
-  { course: "COL7333", name: "Introduction to Artificial Intelligence", room: "LH108", days: ["Tue", "Thu", "Fri"], time: "11:00–12:00" },
-  { course: "COL7341", name: "Fundamentals of Machine Learning", room: "LH121", days: ["Mon", "Wed", "Thu"], time: "08:00–09:00" },
-  { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Mon", "Wed"], time: "11:00–12:00" },
-  { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Thu"], time: "12:00–13:00" },
-  { course: "COL7524", name: "Advanced Networks", room: "LH422", days: ["Mon", "Tue", "Fri"], time: "12:00–13:00" },
-  { course: "COL7683", name: "Digital Image Analysis", room: "LH510", days: ["Tue", "Fri"], time: "14:00–15:30" },
-  { course: "COL8628", name: "Advanced Computer Vision", room: "LH619", days: ["Tue", "Fri"], time: "15:30–17:00" },
-];
-
-const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-const timeSlots = [
-  "08:00–09:00",
-  "09:30–11:00",
-  "11:00–12:00",
-  "12:00–13:00",
-  "13:00–14:00",
-  "14:00–15:30",
-  "15:30–17:00",
-];
-
-export default function Timetable() {
-  const [gridView, setGridView] = useState(false);
-
-  return (
-    <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">IITD M.Tech CSE Timetable</h1>
-        <Button onClick={() => setGridView(!gridView)}>
-          {gridView ? "Card View" : "Grid View"}
-        </Button>
-      </div>
-
-      {gridView ? (
-        <div className="overflow-x-auto">
-          <table className="table-auto border-collapse border w-full text-sm">
-            <thead>
-              <tr>
-                <th className="border p-2">Time \ Day</th>
-                {days.map((day) => (
-                  <th key={day} className="border p-2 text-center">{day}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {timeSlots.map((slot) => (
-                <tr key={slot}>
-                  <td className="border p-2 font-medium whitespace-nowrap">{slot}</td>
-                  {days.map((day) => {
-                    const cellCourses = timetable.filter(
-                      (entry) => entry.time === slot && entry.days.includes(day)
-                    );
-                    return (
-                      <td key={day + slot} className="border p-2 h-24 align-top">
-                        {cellCourses.map((entry, idx) => (
-                          <div key={idx} className="mb-1 p-1 rounded bg-gray-100 text-xs shadow">
-                            <strong>{entry.course}</strong><br />
-                            {entry.room}
-                          </div>
-                        ))}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {timetable.map((item, index) => (
-            <Card key={index} className="rounded-2xl shadow-md">
-              <CardContent className="p-4 space-y-2">
-                <h2 className="text-lg font-semibold">{item.course}</h2>
-                <p className="text-sm text-gray-700">{item.name}</p>
-                <p className="text-sm">Room: {item.room}</p>
-                <p className="text-sm">Days: {item.days.join(", ")}</p>
-                <p className="text-sm">Time: {item.time}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-
-<!-- 
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IIT Delhi Timetable</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script>
-    function toggleTheme() {
-      document.documentElement.classList.toggle('dark');
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IITD M.Tech CSE Timetable</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #f9fafb;
     }
-
-    function generateGoogleCalendarLink(course) {
-      const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-      const text = `&text=${encodeURIComponent(course.title)}`;
-      const details = `&details=${encodeURIComponent(course.code + ' with ' + course.instructor + ' in ' + course.room)}`;
-      const location = `&location=${encodeURIComponent(course.room)}`;
-      return base + text + details + location;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
     }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const courses = [
-        {
-          code: 'COL7004',
-          title: 'Mathematical Foundations of Computing',
-          instructor: 'Prof. TBA',
-          room: 'LH519',
-          time: 'MTThF 13:00–14:00'
-        },
-        {
-          code: 'COL703 / COL7203',
-          title: 'Logic for Computer Science',
-          instructor: 'Prof. TBA',
-          room: 'VI LT 1',
-          time: 'Monday & Thursday 09:30–11:00'
-        },
-        {
-          code: 'COL7151',
-          title: 'Algorithmic Graph Theory',
-          instructor: 'Prof. TBA',
-          room: 'LH316',
-          time: 'Monday & Thursday 14:00–15:30'
-        },
-        {
-          code: 'COL7153',
-          title: 'Complexity Theory',
-          instructor: 'Prof. TBA',
-          room: 'LH611',
-          time: 'Tuesday & Friday 15:30–17:00'
-        },
-        {
-          code: 'COL7333',
-          title: 'Introduction to Artificial Intelligence',
-          instructor: 'Prof. TBA',
-          room: 'LH108',
-          time: 'Tuesday, Thursday & Friday 11:00–12:00'
-        },
-        {
-          code: 'COL7341',
-          title: 'Fundamentals of Machine Learning',
-          instructor: 'Prof. TBA',
-          room: 'LH121',
-          time: 'Monday & Wednesday 8:00–9:00, Thursday'
-        },
-        {
-          code: 'COL7375',
-          title: 'Deep Learning',
-          instructor: 'Prof. TBA',
-          room: 'LH510',
-          time: 'Monday & Wednesday 11:00–12:00, Thursday 12:00–13:00'
-        },
-        {
-          code: 'COL7524',
-          title: 'Advanced Networks',
-          instructor: 'Prof. TBA',
-          room: 'LH422',
-          time: 'Monday, Tuesday & Friday 12:00–13:00'
-        },
-        {
-          code: 'COL7683',
-          title: 'Digital Image Analysis',
-          instructor: 'Prof. TBA',
-          room: 'LH510',
-          time: 'Tuesday & Friday 14:00–15:30'
-        },
-        {
-          code: 'COL8628',
-          title: 'Advanced Computer Vision',
-          instructor: 'Prof. TBA',
-          room: 'LH619',
-          time: 'Tuesday & Friday 15:30–17:00'
-        }
-      ];
-
-      const container = document.getElementById("courseContainer");
-
-      courses.forEach(course => {
-        const card = document.createElement("div");
-        card.className = "bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 m-4 w-full md:w-1/2 lg:w-1/3";
-        card.innerHTML = `
-          <h2 class="text-xl font-bold text-gray-900 dark:text-white">${course.code}</h2>
-          <p class="text-gray-700 dark:text-gray-300">${course.title}</p>
-          <p class="text-gray-600 dark:text-gray-400">Room: ${course.room}</p>
-          <p class="text-gray-600 dark:text-gray-400">Time: ${course.time}</p>
-          <a href="${generateGoogleCalendarLink(course)}" target="_blank" class="mt-2 inline-block text-blue-500 hover:underline">Add to Calendar</a>
-        `;
-        container.appendChild(card);
-      });
-    });
-  </script>
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background-color: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1rem;
+    }
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .grid-table th,
+    .grid-table td {
+      border: 1px solid #ccc;
+      padding: 0.5rem;
+      vertical-align: top;
+    }
+    .grid-table th {
+      background-color: #e0e7ff;
+      font-weight: bold;
+      text-align: center;
+    }
+    .grid-table td {
+      min-height: 4rem;
+      background-color: #fff;
+    }
+    .course-block {
+      background-color: #f3f4f6;
+      padding: 0.25rem;
+      margin-bottom: 0.25rem;
+      border-radius: 6px;
+    }
+  </style>
 </head>
-
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-  <div class="container mx-auto p-4">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold">📅 IIT Delhi Timetable</h1>
-      <button onclick="toggleTheme()" class="bg-gray-200 dark:bg-gray-700 px-4 py-2 rounded">Toggle Theme</button>
-    </div>
-
-    <div id="courseContainer" class="flex flex-wrap justify-center"></div>
-
-    <footer class="mt-10 text-center text-gray-500 text-sm">
-      Crafted with ❤️ | For IIT Delhi M.Tech CSE
-    </footer>
+<body>
+  <div class="header">
+    <h1>IITD M.Tech CSE Timetable</h1>
+    <button class="btn" onclick="toggleView()">Toggle View</button>
   </div>
-</body>
 
-</html> -->
+  <div id="cardView" class="card-container"></div>
+  <div id="gridView" style="display: none;"></div>
+
+  <script>
+    const timetable = [
+      { course: "COL7004", name: "Mathematical Foundations of Computing", room: "LH519", days: ["Mon", "Tue", "Thu", "Fri"], time: "13:00–14:00" },
+      { course: "COL703", name: "Logic for Computer Science", room: "VI LT 1", days: ["Mon", "Thu"], time: "09:30–11:00" },
+      { course: "COL7151", name: "Algorithmic Graph Theory", room: "LH316", days: ["Mon", "Thu"], time: "14:00–15:30" },
+      { course: "COL7153", name: "Complexity Theory", room: "LH611", days: ["Tue", "Fri"], time: "15:30–17:00" },
+      { course: "COL7333", name: "Introduction to Artificial Intelligence", room: "LH108", days: ["Tue", "Thu", "Fri"], time: "11:00–12:00" },
+      { course: "COL7341", name: "Fundamentals of Machine Learning", room: "LH121", days: ["Mon", "Wed", "Thu"], time: "08:00–09:00" },
+      { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Mon", "Wed"], time: "11:00–12:00" },
+      { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Thu"], time: "12:00–13:00" },
+      { course: "COL7524", name: "Advanced Networks", room: "LH422", days: ["Mon", "Tue", "Fri"], time: "12:00–13:00" },
+      { course: "COL7683", name: "Digital Image Analysis", room: "LH510", days: ["Tue", "Fri"], time: "14:00–15:30" },
+      { course: "COL8628", name: "Advanced Computer Vision", room: "LH619", days: ["Tue", "Fri"], time: "15:30–17:00" },
+    ];
+
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const timeSlots = [
+      "08:00–09:00",
+      "09:30–11:00",
+      "11:00–12:00",
+      "12:00–13:00",
+      "13:00–14:00",
+      "14:00–15:30",
+      "15:30–17:00",
+    ];
+
+    function toggleView() {
+      const card = document.getElementById("cardView");
+      const grid = document.getElementById("gridView");
+      if (card.style.display === "none") {
+        card.style.display = "grid";
+        grid.style.display = "none";
+      } else {
+        card.style.display = "none";
+        grid.style.display = "block";
+      }
+    }
+
+    function populateCardView() {
+      const cardContainer = document.getElementById("cardView");
+      timetable.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${item.course}</h3>
+          <p><strong>${item.name}</strong></p>
+          <p>Room: ${item.room}</p>
+          <p>Days: ${item.days.join(", ")}</p>
+          <p>Time: ${item.time}</p>
+        `;
+        cardContainer.appendChild(div);
+      });
+    }
+
+    function populateGridView() {
+      const gridContainer = document.getElementById("gridView");
+      const table = document.createElement("table");
+      table.className = "grid-table";
+
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      headRow.innerHTML = `<th>Time \\ Day</th>` + days.map(d => `<th>${d}</th>`).join("");
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      timeSlots.forEach(slot => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td><strong>${slot}</strong></td>` + days.map(day => {
+          const courses = timetable.filter(entry => entry.time === slot && entry.days.includes(day));
+          return `<td>${courses.map(c => `<div class='course-block'><strong>${c.course}</strong><br>${c.room}</div>`).join("")}</td>`;
+        }).join("");
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      gridContainer.appendChild(table);
+    }
+
+    populateCardView();
+    populateGridView();
+  </script>
+</body>
+</html>
