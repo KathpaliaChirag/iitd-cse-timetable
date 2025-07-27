@@ -5,6 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IITD M.Tech CSE Timetable</title>
   <style>
+    :root {
+      color-scheme: dark light;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #111827;
+      color: #f3f4f6;
+    }
+    .header, .footer {
+      background-color: #1f2937;
+      padding: 1rem;
+      text-align: center;
+      color: #f3f4f6;
+    }
+    .footer {
+      font-size: 0.8rem;
+      margin-top: 2rem;
+    }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background-color: #1f2937;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+    }
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background-color: #1f2937;
+    }
+    .grid-table th,
+    .grid-table td {
+      border: 1px solid #374151;
+      padding: 0.5rem;
+      vertical-align: top;
+      color: #f3f4f6;
+    }
+    .grid-table th {
+      background-color: #374151;
+      font-weight: bold;
+      text-align: center;
+    }
+    .grid-table td {
+      min-height: 4rem;
+      background-color: #111827;
+    }
+    .course-block {
+      background-color: #374151;
+      padding: 0.25rem;
+      margin-bottom: 0.25rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>IITD M.Tech CSE Timetable</h1>
+  </div>
+  <div class="topbar">
+    <span>View Mode:</span>
+    <button class="btn" onclick="toggleView()">Toggle View</button>
+  </div>
+
+  <div id="cardView" class="card-container"></div>
+  <div id="gridView" style="display: none;"></div>
+
+  <div class="footer">
+    <p>Designed with ❤️ by IITD CSE M.Tech 2025 Batch | GitHub: @kathpaliachirag</p>
+  </div>
+
+  <script>
+    const timetable = [
+      { course: "COL7001", name: "Systems Concepts", room: "60", days: ["Tue", "Wed", "Fri"], time: "09:00–10:00" },
+      { course: "COL7004", name: "Mathematical Foundations of Computing", room: "LH519", days: ["Mon", "Tue", "Thu", "Fri"], time: "13:00–14:00" },
+      { course: "COL703", name: "Logic for Computer Science", room: "VI LT 1", days: ["Mon", "Thu"], time: "09:30–11:00" },
+      { course: "COL7151", name: "Algorithmic Graph Theory", room: "LH316", days: ["Mon", "Thu"], time: "14:00–15:30" },
+      { course: "COL7153", name: "Complexity Theory", room: "LH611", days: ["Tue", "Fri"], time: "15:30–17:00" },
+      { course: "COL7333", name: "Introduction to Artificial Intelligence", room: "LH108", days: ["Tue", "Thu", "Fri"], time: "11:00–12:00" },
+      { course: "COL7341", name: "Fundamentals of Machine Learning", room: "LH121", days: ["Mon", "Wed", "Thu"], time: "08:00–09:00" },
+      { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Mon", "Wed"], time: "11:00–12:00" },
+      { course: "COL7375", name: "Deep Learning", room: "LH510", days: ["Thu"], time: "12:00–13:00" },
+      { course: "COL7524", name: "Advanced Networks", room: "LH422", days: ["Mon", "Tue", "Fri"], time: "12:00–13:00" },
+      { course: "COL7683", name: "Digital Image Analysis", room: "LH510", days: ["Tue", "Fri"], time: "14:00–15:30" },
+      { course: "COL8628", name: "Advanced Computer Vision", room: "LH619", days: ["Tue", "Fri"], time: "15:30–17:00" }
+    ];
+
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const timeSlots = [
+      "08:00–09:00",
+      "09:00–10:00",
+      "09:30–11:00",
+      "11:00–12:00",
+      "12:00–13:00",
+      "13:00–14:00",
+      "14:00–15:30",
+      "15:30–17:00",
+    ];
+
+    function toggleView() {
+      const card = document.getElementById("cardView");
+      const grid = document.getElementById("gridView");
+      if (card.style.display === "none") {
+        card.style.display = "grid";
+        grid.style.display = "none";
+      } else {
+        card.style.display = "none";
+        grid.style.display = "block";
+      }
+    }
+
+    function populateCardView() {
+      const cardContainer = document.getElementById("cardView");
+      timetable.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${item.name}</h3>
+          <p><strong>${item.course}</strong></p>
+          <p>Room: ${item.room}</p>
+          <p>Days: ${item.days.join(", ")}</p>
+          <p>Time: ${item.time}</p>
+        `;
+        cardContainer.appendChild(div);
+      });
+    }
+
+    function populateGridView() {
+      const gridContainer = document.getElementById("gridView");
+      const table = document.createElement("table");
+      table.className = "grid-table";
+
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      headRow.innerHTML = `<th>Time \\ Day</th>` + days.map(d => `<th>${d}</th>`).join("");
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      timeSlots.forEach(slot => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td><strong>${slot}</strong></td>` + days.map(day => {
+          const courses = timetable.filter(entry => entry.time === slot && entry.days.includes(day));
+          return `<td>${courses.map(c => `<div class='course-block'><strong>${c.name}</strong><br>${c.room}</div>`).join("")}</td>`;
+        }).join("");
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      gridContainer.appendChild(table);
+    }
+
+    populateCardView();
+    populateGridView();
+  </script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IITD M.Tech CSE Timetable</title>
+  <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -157,7 +341,7 @@
     populateGridView();
   </script>
 </body>
-</html>
+</html> -->
 
 
 <!-- <!DOCTYPE html>
