@@ -17,6 +17,11 @@
       color: #f3f4f6;
       line-height: 1.6;
     }
+    .course-block small {
+    font-size: 0.75rem;
+    color: #d1d5db;
+    }
+
     .header {
       background-color: #0f172a;
       padding: 1.5rem;
@@ -361,7 +366,12 @@
           matches.forEach(course => {
             const block = document.createElement("div");
             block.className = "course-block";
-            block.textContent = `${course.name} (${course.time})`;
+            // block.textContent = `${course.name} (${course.time})`;
+            block.innerHTML = `
+            <strong>${course.room}</strong><br>
+            <span style="color:#93c5fd">${course.code}</span> – ${course.name}<br>
+            <small>${course.time}</small>
+`;
             cell.appendChild(block);
           });
           row.appendChild(cell);
