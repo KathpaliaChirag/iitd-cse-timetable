@@ -135,15 +135,19 @@
     .grid-table td {
       background-color: #111827;
     }
-    .course-block {
-      background-color: #374151;
-      padding: 0.25rem;
-      margin-bottom: 0.25rem;
-      border-radius: 6px;
-    }
-    .course-block.conflict {
+    .course-block small {
+  font-size: 0.75rem;
+  color: #d1d5db;
+}
+  .course-block.conflict {
+  background-color: #b91c1c; /* Red */
+  color: white;
+  font-weight: bold;
+}
+
+    /* .course-block.conflict {
       background-color: #dc2626;
-    }
+    } */
     .tag {
       display: inline-block;
       padding: 2px 8px;
@@ -199,6 +203,7 @@
     room: "LH519",
     time: "13:00–14:00",
     days: ["Monday", "Tuesday", "Thursday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "core"
   },
   {
@@ -207,6 +212,7 @@
     room: "VI LT 1",
     time: "09:30–11:00",
     days: ["Monday", "Thursday"],
+    instructor: "Prof. ABC",
     tag: "core"
   },
   {
@@ -215,6 +221,7 @@
     room: "LH316",
     time: "14:00–15:30",
     days: ["Monday", "Thursday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -223,6 +230,7 @@
     room: "LH611",
     time: "15:30–17:00",
     days: ["Tuesday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "core"
   },
   {
@@ -231,6 +239,7 @@
     room: "LH108",
     time: "11:00–12:00",
     days: ["Tuesday", "Thursday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "core"
   },
   {
@@ -239,6 +248,7 @@
     room: "LH121",
     time: "08:00–09:00",
     days: ["Monday", "Wednesday", "Thursday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -247,6 +257,7 @@
     room: "LH510",
     time: "11:00–12:00",
     days: ["Monday", "Wednesday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -255,6 +266,7 @@
     room: "LH422",
     time: "12:00–13:00",
     days: ["Monday", "Tuesday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -263,6 +275,7 @@
     room: "LH510",
     time: "14:00–15:30",
     days: ["Tuesday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -271,6 +284,7 @@
     room: "LH619",
     time: "15:30–17:00",
     days: ["Tuesday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "elective"
   },
   {
@@ -279,6 +293,7 @@
     room: "LH404",
     time: "09:00–10:00",
     days: ["Tuesday", "Wednesday", "Friday"],
+    instructor: "Prof. ABC",
     tag: "core"
   }
 ];
@@ -339,49 +354,165 @@
         container.appendChild(card);
       });
     }
+function renderGridView() {
+  const container = document.getElementById("gridView");
+  container.innerHTML = "";
 
-    function renderGridView() {
-      const container = document.getElementById("gridView");
-      container.innerHTML = "";
+  const table = document.createElement("table");
+  table.className = "grid-table";
 
-      const table = document.createElement("table");
-      table.className = "grid-table";
+  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const times = [...new Set(timetable.map(c => c.time))].sort(); // All unique time slots
 
-      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-      const rooms = [...new Set(timetable.map(c => c.room))].sort();
+  // Header row: days
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  headRow.innerHTML = `<th>Time \\ Day</th>` + days.map(day => `<th>${day}</th>`).join("");
+  thead.appendChild(headRow);
+  table.appendChild(thead);
 
-      const thead = document.createElement("thead");
-      const headRow = document.createElement("tr");
-      headRow.innerHTML = `<th>Room / Day</th>` + days.map(day => `<th>${day}</th>`).join("");
-      thead.appendChild(headRow);
-      table.appendChild(thead);
+  // Body rows: time slots
+  const tbody = document.createElement("tbody");
 
-      const tbody = document.createElement("tbody");
-      rooms.forEach(room => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td><strong>${room}</strong></td>`;
-        days.forEach(day => {
-          const cell = document.createElement("td");
-          const matches = timetable.filter(c => c.room === room && c.days.includes(day));
-          matches.forEach(course => {
-            const block = document.createElement("div");
-            block.className = "course-block";
-            // block.textContent = `${course.name} (${course.time})`;
-            block.innerHTML = `
-            <strong>${course.room}</strong><br>
-            <span style="color:#93c5fd">${course.code}</span> – ${course.name}<br>
-            <small>${course.time}</small>
-`;
-            cell.appendChild(block);
-          });
-          row.appendChild(cell);
-        });
-        tbody.appendChild(row);
+  times.forEach(time => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td><strong>${time}</strong></td>`;
+
+    days.forEach(day => {
+      const cell = document.createElement("td");
+
+      const matches = timetable.filter(c => c.time === time && c.days.includes(day));
+
+      matches.forEach(course => {
+        const block = document.createElement("div");
+        block.className = "course-block";
+
+        // Conflict highlight
+        if (matches.length > 1) block.classList.add("conflict");
+
+        // Tooltip info
+        block.title = `${course.code} - ${course.name}\nRoom: ${course.room}\nInstructor: ${course.instructor}\nType: ${course.type}`;
+
+        // Emoji type
+        const emoji = course.type === "Core" ? "🎓" : course.type === "Elective" ? "📘" : "💡";
+
+        block.innerHTML = `
+          <strong>${course.room}</strong><br>
+          ${emoji} <span style="color:#93c5fd">${course.code}</span> – ${course.name}<br>
+          <small>${course.time}</small>
+        `;
+        cell.appendChild(block);
       });
 
-      table.appendChild(tbody);
-      container.appendChild(table);
-    }
+      row.appendChild(cell);
+    });
+
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+//     function renderGridView() {
+//   const container = document.getElementById("gridView");
+//   container.innerHTML = "";
+
+//   const table = document.createElement("table");
+//   table.className = "grid-table";
+
+//   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+//   const rooms = [...new Set(timetable.map(c => c.room))].sort();
+
+//   const thead = document.createElement("thead");
+//   const headRow = document.createElement("tr");
+//   headRow.innerHTML = `<th>Room / Day</th>` + days.map(day => `<th>${day}</th>`).join("");
+//   thead.appendChild(headRow);
+//   table.appendChild(thead);
+
+//   const tbody = document.createElement("tbody");
+
+//   rooms.forEach(room => {
+//     const row = document.createElement("tr");
+//     row.innerHTML = `<td><strong>${room}</strong></td>`;
+
+//     days.forEach(day => {
+//       const cell = document.createElement("td");
+//       const matches = timetable.filter(c => c.room === room && c.days.includes(day));
+
+//       matches.forEach(course => {
+//         const block = document.createElement("div");
+//         block.className = "course-block";
+
+//         // 💥 Detect and mark conflicts
+//         if (matches.length > 1) block.classList.add("conflict");
+
+//         // 🧠 Tooltip with extra info
+//         block.title = `${course.code} - ${course.name}\nInstructor: ${course.instructor}\nType: ${course.type}`;
+
+//         // 🧿 Optional emojis (based on type)
+//         const emoji = course.type === "Core" ? "🎓" : course.type === "Elective" ? "📘" : "💡";
+
+//         block.innerHTML = `
+//           <strong>${course.room}</strong><br>
+//           ${emoji} <span style="color:#93c5fd">${course.code}</span> – ${course.name}<br>
+//           <small>${course.time}</small>
+//         `;
+//         cell.appendChild(block);
+//       });
+
+//       row.appendChild(cell);
+//     });
+
+//     tbody.appendChild(row);
+//   });
+
+//   table.appendChild(tbody);
+//   container.appendChild(table);
+// }
+
+//     function renderGridView() {
+//       const container = document.getElementById("gridView");
+//       container.innerHTML = "";
+
+//       const table = document.createElement("table");
+//       table.className = "grid-table";
+
+//       const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+//       const rooms = [...new Set(timetable.map(c => c.room))].sort();
+
+//       const thead = document.createElement("thead");
+//       const headRow = document.createElement("tr");
+//       headRow.innerHTML = `<th>Room / Day</th>` + days.map(day => `<th>${day}</th>`).join("");
+//       thead.appendChild(headRow);
+//       table.appendChild(thead);
+
+//       const tbody = document.createElement("tbody");
+//       rooms.forEach(room => {
+//         const row = document.createElement("tr");
+//         row.innerHTML = `<td><strong>${room}</strong></td>`;
+//         days.forEach(day => {
+//           const cell = document.createElement("td");
+//           const matches = timetable.filter(c => c.room === room && c.days.includes(day));
+//           matches.forEach(course => {
+//             const block = document.createElement("div");
+//             block.className = "course-block";
+//             // block.textContent = `${course.name} (${course.time})`;
+//             block.innerHTML = `
+//             <strong>${course.room}</strong><br>
+//             <span style="color:#93c5fd">${course.code}</span> – ${course.name}<br>
+//             <small>${course.time}</small>
+// `;
+//             cell.appendChild(block);
+//           });
+//           row.appendChild(cell);
+//         });
+//         tbody.appendChild(row);
+//       });
+
+//       table.appendChild(tbody);
+//       container.appendChild(table);
+//     }
 
     function toggleView() {
       const card = document.getElementById("cardView");
