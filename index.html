@@ -4,6 +4,158 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IITD M.Tech CSE Timetable</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark light;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #111827;
+      color: #f3f4f6;
+      line-height: 1.6;
+    }
+    .header, .footer {
+      background-color: #1f2937;
+      padding: 1rem;
+      text-align: center;
+    }
+    .footer {
+      font-size: 0.8rem;
+      margin-top: 2rem;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #111827;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-bottom: 1px solid #374151;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .filter-select, .search-input {
+      padding: 0.5rem;
+      background-color: #1f2937;
+      color: #f3f4f6;
+      border: 1px solid #374151;
+      border-radius: 6px;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .card {
+      background-color: #1f2937;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      background-color: #1e293b;
+    }
+    .note-area {
+      margin-top: 0.5rem;
+      background: #0f172a;
+      border: 1px solid #374151;
+      color: #f3f4f6;
+      padding: 0.3rem;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .star {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #facc15;
+      opacity: 0.3;
+    }
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background-color: #1f2937;
+      overflow-x: auto;
+      display: block;
+    }
+    .grid-table th,
+    .grid-table td {
+      border: 1px solid #374151;
+      padding: 0.5rem;
+      vertical-align: top;
+      color: #f3f4f6;
+      min-width: 100px;
+    }
+    .grid-table th {
+      background-color: #374151;
+      font-weight: bold;
+      text-align: center;
+    }
+    .grid-table td {
+      background-color: #111827;
+    }
+    .course-block {
+      background-color: #374151;
+      padding: 0.25rem;
+      margin-bottom: 0.25rem;
+      border-radius: 6px;
+    }
+    .course-block.conflict {
+      background-color: #dc2626;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      margin-right: 5px;
+    }
+    .core { background-color: #0ea5e9; color: white; }
+    .elective { background-color: #f59e0b; color: white; }
+    .download-btn {
+      margin-left: 1rem;
+      background-color: #10b981;
+    }
+    .no-results {
+      margin-top: 2rem;
+      text-align: center;
+      font-style: italic;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <!-- Your script section stays mostly the same, with minor logic additions -->
+  <!-- We can add the revised <script> block and the updated timetable array next -->
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IITD M.Tech CSE Timetable</title>
   <style>
     :root {
       color-scheme: dark light;
@@ -165,7 +317,7 @@
         cardContainer.appendChild(div);
       });
     }
-
+ -->
     function populateGridView() {
       const gridContainer = document.getElementById("gridView");
       gridContainer.innerHTML = "";
