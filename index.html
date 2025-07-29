@@ -184,7 +184,344 @@
     <p>Designed with ❤️ by IITD CSE M.Tech 2025 Batch | GitHub: @kathpaliachirag</p>
   </div>
   <script>
-    // Add your JavaScript logic and timetable array here (from previous working version)
+    const timetable = [
+      // timetable entries already inserted
+    ];
+
+    function renderCardView() {
+      const container = document.getElementById("cardView");
+      container.innerHTML = "";
+      const filter = document.querySelector(".filter-select").value.toLowerCase();
+      const search = document.querySelector(".search-input").value.toLowerCase();
+
+      const matchedCourses = timetable.filter(course => {
+        const matchRoom = !filter || course.room.toLowerCase().includes(filter);
+        const matchSearch =
+          course.code.toLowerCase().includes(search) ||
+          course.name.toLowerCase().includes(search);
+        return matchRoom && matchSearch;
+      });
+
+      if (matchedCourses.length === 0) {
+        container.innerHTML = '<div class="no-results">No matching courses found.</div>';
+        return;
+      }
+
+      matchedCourses.forEach(course => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const star = document.createElement("div");
+        star.className = "star";
+        star.textContent = "★";
+        star.style.opacity = localStorage.getItem(course.code + "_star") ? "1" : "0.3";
+        star.onclick = () => {
+          const isStarred = localStorage.getItem(course.code + "_star");
+          if (isStarred) {
+            localStorage.removeItem(course.code + "_star");
+            star.style.opacity = "0.3";
+          } else {
+            localStorage.setItem(course.code + "_star", true);
+            star.style.opacity = "1";
+          }
+        };
+
+        card.innerHTML = `
+          <h3>${course.name}</h3>
+          <p><strong>Code:</strong> ${course.code}</p>
+          <p><strong>Room:</strong> ${course.room}</p>
+          <p><strong>Time:</strong> ${course.days.join(", ")} @ ${course.time}</p>
+          <span class="tag ${course.tag}">${course.tag.toUpperCase()}</span>
+          <textarea class="note-area" placeholder="Add your notes here...">${localStorage.getItem(course.code + "_note") || ""}</textarea>
+        `;
+
+        card.querySelector(".note-area").addEventListener("input", (e) => {
+          localStorage.setItem(course.code + "_note", e.target.value);
+        });
+
+        card.appendChild(star);
+        container.appendChild(card);
+      });
+    }
+
+    function renderGridView() {
+      const container = document.getElementById("gridView");
+      container.innerHTML = "";
+
+      const table = document.createElement("table");
+      table.className = "grid-table";
+
+      const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+      const rooms = [...new Set(timetable.map(c => c.room))].sort();
+
+      const thead = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      headRow.innerHTML = `<th>Room / Day</th>` + days.map(day => `<th>${day}</th>`).join("");
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+      rooms.forEach(room => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td><strong>${room}</strong></td>`;
+        days.forEach(day => {
+          const cell = document.createElement("td");
+          const matches = timetable.filter(c => c.room === room && c.days.includes(day));
+          matches.forEach(course => {
+            const block = document.createElement("div");
+            block.className = "course-block";
+            block.textContent = `${course.name} (${course.time})`;
+            cell.appendChild(block);
+          });
+          row.appendChild(cell);
+        });
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    function toggleView() {
+      const card = document.getElementById("cardView");
+      const grid = document.getElementById("gridView");
+      if (card.style.display === "none") {
+        card.style.display = "grid";
+        grid.style.display = "none";
+        renderCardView();
+      } else {
+        card.style.display = "none";
+        grid.style.display = "block";
+        renderGridView();
+      }
+    }
+
+    function filterByRoom(value) {
+      renderCardView();
+    }
+
+    function searchCourses(value) {
+      renderCardView();
+    }
+
+    function downloadICS() {
+      let ics = "BEGIN:VCALENDAR\nVERSION:2.0\n";
+      timetable.forEach(course => {
+        course.days.forEach(day => {
+          ics += `BEGIN:VEVENT\nSUMMARY:${course.name}\nDESCRIPTION:${course.code}\nLOCATION:${course.room}\nDTSTART;TZID=Asia/Kolkata:20250901T${course.time.replace(":", "").substring(0,4)}00\nDTEND;TZID=Asia/Kolkata:20250901T${course.time.replace(":", "").substring(5,9)}00\nRRULE:FREQ=WEEKLY;BYDAY=${day.substring(0,2).toUpperCase()}\nEND:VEVENT\n`;
+        });
+      });
+      ics += "END:VCALENDAR";
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'iitd_timetable.ics';
+      link.click();
+    }
+
+    window.onload = () => {
+      renderCardView();
+      const roomFilter = document.querySelector(".filter-select");
+      const uniqueRooms = [...new Set(timetable.map(c => c.room))].sort();
+      uniqueRooms.forEach(r => {
+        const opt = document.createElement("option");
+        opt.value = r;
+        opt.textContent = r;
+        roomFilter.appendChild(opt);
+      });
+    }
   </script>
 </body>
 </html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IITD M.Tech CSE Timetable</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark light;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background-color: #111827;
+      color: #f3f4f6;
+      line-height: 1.6;
+    }
+    .header {
+      background-color: #0f172a;
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 2px solid #2563eb;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    .header h1 {
+      font-size: 1.8rem;
+      color: #93c5fd;
+      margin: 0;
+    }
+    .header h2 {
+      font-size: 1rem;
+      font-weight: normal;
+      color: #cbd5e1;
+      margin-top: 0.4rem;
+    }
+    .footer {
+      font-size: 0.8rem;
+      margin-top: 2rem;
+      text-align: center;
+      background-color: #1f2937;
+      padding: 1rem;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #111827;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1rem;
+      border-bottom: 1px solid #374151;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .filter-select, .search-input {
+      padding: 0.5rem;
+      background-color: #1f2937;
+      color: #f3f4f6;
+      border: 1px solid #374151;
+      border-radius: 6px;
+    }
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .card {
+      background-color: #1f2937;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      padding: 1rem;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      background-color: #1e293b;
+    }
+    .note-area {
+      margin-top: 0.5rem;
+      background: #0f172a;
+      border: 1px solid #374151;
+      color: #f3f4f6;
+      padding: 0.3rem;
+      border-radius: 5px;
+      width: 100%;
+    }
+    .star {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #facc15;
+      opacity: 0.3;
+    }
+    .grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background-color: #1f2937;
+      overflow-x: auto;
+      display: block;
+    }
+    .grid-table th,
+    .grid-table td {
+      border: 1px solid #374151;
+      padding: 0.5rem;
+      vertical-align: top;
+      color: #f3f4f6;
+      min-width: 100px;
+    }
+    .grid-table th {
+      background-color: #374151;
+      font-weight: bold;
+      text-align: center;
+    }
+    .grid-table td {
+      background-color: #111827;
+    }
+    .course-block {
+      background-color: #374151;
+      padding: 0.25rem;
+      margin-bottom: 0.25rem;
+      border-radius: 6px;
+    }
+    .course-block.conflict {
+      background-color: #dc2626;
+    }
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.7rem;
+      margin-right: 5px;
+    }
+    .core { background-color: #0ea5e9; color: white; }
+    .elective { background-color: #f59e0b; color: white; }
+    .download-btn {
+      margin-left: 1rem;
+      background-color: #10b981;
+    }
+    .no-results {
+      margin-top: 2rem;
+      text-align: center;
+      font-style: italic;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>IIT Delhi — M.Tech CSE Timetable</h1>
+    <h2>Fall Semester 2025</h2>
+  </div>
+  <div class="topbar">
+    <label>Room Filter:
+      <select class="filter-select" onchange="filterByRoom(this.value)">
+        <option value="">All Rooms</option>
+      </select>
+    </label>
+    <input class="search-input" type="text" placeholder="Search course..." oninput="searchCourses(this.value)">
+    <div>
+      <button class="btn" onclick="toggleView()">Toggle View</button>
+      <button class="btn download-btn" onclick="downloadICS()">📅 Add to Calendar</button>
+      <button class="btn" onclick="window.print()">🖨️ Export as PDF</button>
+    </div>
+  </div>
+  <div id="cardView" class="card-container"></div>
+  <div id="gridView" style="display: none;"></div>
+  <div class="footer">
+    <p>Designed with ❤️ by IITD CSE M.Tech 2025 Batch | GitHub: @kathpaliachirag</p>
+  </div>
+  <script>
+    // Add your JavaScript logic and timetable array here (from previous working version)
+  </script>
+</body>
+</html> -->
